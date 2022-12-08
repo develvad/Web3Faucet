@@ -1,7 +1,7 @@
 # Docker Comands for generate GETH nodes
 ### Documentation: https://hub.docker.com/r/ethereum/client-go/
 ## Genesis (Init)
-### docker run -d --name ethereum-node -v ${PWD}/data:/data -v ${PWD}/genesis.json:/genesis.json ethereum/client-go init --datadir data /genesis.json
+### docker run -d --name ethereum-genesis -v ${PWD}/data:/data -v ${PWD}/genesis.json:/genesis.json ethereum/client-go init --datadir data /genesis.json
 ## Node 01
 ### docker run -d -p 8545:8545 -p 30303:30303 \
 ### -v ${PWD}/data:/data \
