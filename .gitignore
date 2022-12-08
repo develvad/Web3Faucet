@@ -1,2 +1,7 @@
 data/
 geth_node/data
+back/node_modules
+front/node_modules
+.env
+back/.env
+front/.env

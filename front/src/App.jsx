@@ -20,7 +20,7 @@ function App() {
         });
         provider.on('chainChanged', (newNetwork) => {
           setNetwork(newNetwork);
-        }); // Continuamos 20:04
+        });
       }
     }
     onInit();
@@ -34,9 +34,13 @@ function App() {
 
   useEffect(() => {
     if(network) {
-      console.log('New Account: ', network);
+      console.log('New NetWork: ', network);
     }
   }, [network]);
+
+  const enviarEth = () => {
+    console.log('Mira que red se puede crear');
+  };
 
   return (
     <div className="App">
@@ -44,7 +48,9 @@ function App() {
         <div className='row mt-3'>            
           <button 
             style={{width: '120px'}}
-            className={`btn btn-primary ${ethConnected ? '' : 'disabled' }`}> 
+            className={`btn btn-primary ${ethConnected ? '' : 'disabled' }`}
+            onClick={() => enviarEth()}
+          > 
               { ethConnected ? '10 ETH' : 'Not Allowed' }
           </button>
         </div>
