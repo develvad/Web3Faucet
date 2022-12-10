@@ -4,10 +4,12 @@ const app = express();
 const bodyParser = require('body-parser');
 const Web3 = require('web3');
 const dotenv = require('dotenv').config();
+const cors = require('cors');
 
+// START APP
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-
+app.use(cors());
 // Connect to Test Network for Faucet.
 const web3 = new Web3(process.env.TEST_NETWORK);
 
@@ -23,23 +25,40 @@ app.get('/ping', (req, res) => {
 });
 
 app.get('/send/:account',  async (req, res) => {
-    const signature = hashGenerator(req.params.account);
-    const tx = await web3.eth.accounts.signTransaction(
-    {
-        to: req.params.account,
-        from: process.env.FROM_ADDRESS,
-        value:  web3.utils.toWei('10', 'ether'), // ETHERS: ethers.utils.parseEther("10").toHexString(),
-        gas: 2000000
-    }, '0x' + process.env.PRIVATE_KEY);
-    const txSignSend = await web3.eth.sendSignedTransaction(
-        tx.rawTransaction
-    )
-    res.send(
-        { 
-            signature,
-            status: 'ok'
-        }
-    );
+    const account = req.params.account;
+    console.log('account: ', account);
+    const signature = hashGenerator(account);
+    const statusError = {
+        isError: false,
+        error: ''
+    };
+    if (web3.utils.isAddress(account)) {
+        try {
+            const tx = await web3.eth.accounts.signTransaction(
+                {
+                    to: account,
+                    from: process.env.FROM_ADDRESS,
+                    value:  web3.utils.toWei('10', 'ether'),
+                    gas: 2000000
+                }, '0x' + process.env.PRIVATE_KEY);
+                const txSignSend = await web3.eth.sendSignedTransaction(
+                    tx.rawTransaction
+                )
+                const balance = await web3.eth.getBalance(account);
+                const ammount = web3.utils.fromWei(balance) + ' ETH';
+                res.status(200).send({ signature, ammount, status: 'ok' });
+            } catch(e) {
+               statusError.isError = true;
+               statusError.error = e;
+               res.status(500).send({error: statusError.error});
+
+            }
+    } else {
+        statusError.isError = true;
+        statusError.error = 'NOT VALID 0xAddress';
+        res.status(500).send({error: statusError.error});
+    }
+
 });
 
 app.get('/balance/:account', async (req, res) => {
@@ -49,7 +68,6 @@ app.get('/balance/:account', async (req, res) => {
     try {
         const balance = await web3.eth.getBalance(account);
         const finalBalance = web3.utils.fromWei(balance) + ' ETH';
-        console.log(finalBalance);
         res.send(
             { 
                 signature,
